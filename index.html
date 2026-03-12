@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Casino - Limited History</title>
+    <style>
+        :root {
+            --gold: #f1c40f;
+            --odd: #e74c3c;
+            --even: #3498db;
+            --bg: #0b0b14;
+            --card: #16213e;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .balance-card {
+            background: var(--card);
+            padding: 15px 40px;
+            border: 2px solid var(--gold);
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.3);
+        }
+
+        .main-container {
+            background: var(--card);
+            width: 100%;
+            max-width: 380px;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        }
+
+        .admin-panel {
+            display: none;
+            background: rgba(241, 196, 15, 0.1);
+            border: 1px dashed var(--gold);
+            color: var(--gold);
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .dice-box {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .dice {
+            width: 60px;
+            height: 60px;
+            background: white;
+            color: black;
+            border-radius: 12px;
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #0f3460;
+            border: 1px solid #1a1a2e;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .btn-apply {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 0 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .play-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        .btn-odd { background: var(--odd); }
+        .btn-even { background: var(--even); }
+
+        .history-panel {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .history-list {
+            display: flex;
+            gap: 8px;
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .node {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 12px;
+            animation: pop 0.3s ease-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .node-odd { background: var(--odd); }
+        .node-even { background: var(--even); }
+
+        #gameStatus {
+            margin-top: 15px;
+            font-weight: bold;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="balance-card">
+        WALLET: <span id="displayBalance">1,000,000</span> VND
+    </div>
+
+    <div class="main-container">
+        <h2 style="color: var(--gold); margin-top: 0;">ELITE CASINO</h2>
+
+        <div id="cheatPanel" class="admin-panel">
+            SIGNAL: <span id="hintText">---</span>
+        </div>
+
+        <div class="dice-box">
+            <div class="dice" id="d1">?</div>
+            <div class="dice" id="d2">?</div>
+            <div class="dice" id="d3">?</div>
+        </div>
+        <p>Score: <span id="scoreVal" style="color: var(--gold);">0</span></p>
+
+        <input type="number" id="betVal" placeholder="Amount to bet">
+        
+        <div class="input-row">
+            <input type="text" id="codeInp" placeholder="Enter Code" style="margin:0;">
+            <button class="btn-apply" onclick="handlePromo()">APPLY</button>
+        </div>
+
+        <div class="play-btns">
+            <button class="btn btn-odd" onclick="processRoll('ODD')">LẺ</button>
+            <button class="btn btn-even" onclick="processRoll('EVEN')">CHẴN</button>
+        </div>
+
+        <p id="gameStatus"></p>
+    </div>
+
+    <div class="history-panel">
+        <p style="font-weight: bold; margin-bottom: 10px;">SOI CẦU (LATEST 10)</p>
+        <div class="history-list" id="historyNodes"></div>
+    </div>
+
+    <script>
+        // App State
+        let balance = 1000000;
+        let adminPrediction = "";
+        const historyArray = [];
+
+        /**
+         * Xử lý mã khuyến mãi và mã admin
+         */
+        function handlePromo() {
+            const input = document.getElementById('codeInp').value.trim();
+            const panel = document.getElementById('cheatPanel');
+            const status = document.getElementById('gameStatus');
+
+            // Mã Admin
+            if (input === "kemanh2013") {
+                panel.style.display = "block";
+                if (!adminPrediction) adminPrediction = Math.random() > 0.5 ? "ODD" : "EVEN";
+                document.getElementById('hintText').innerText = adminPrediction;
+                status.innerText = "Admin mode: Active";
+                status.style.color = var(--gold);
+            } 
+            // Mã Tiền Thưởng 1000 Tỷ
+            else if (input === "kietdepzai") {
+                balance += 1000000000000;
+                document.getElementById('displayBalance').innerText = balance.toLocaleString();
+                status.innerText = "Bonus added: 1,000 Billion VND!";
+                status.style.color = "#2ecc71";
+            } else {
+                status.innerText = "Code not found!";
+                status.style.color = "#e74c3c";
+            }
+        }
+
+        /**
+         * Logic Game chính
+         */
+        function processRoll(playerChoice) {
+            const bet = parseInt(document.getElementById('betVal').value);
+            const status = document.getElementById('gameStatus');
+
+            if (isNaN(bet) || bet <= 0 || bet > balance) {
+                status.innerText = "Invalid bet amount!";
+                status.style.color = "orange";
+                return;
+            }
+
+            status.innerText = "Rolling...";
+            status.style.color = "white";
+
+            setTimeout(() => {
+                let d1, d2, d3, total, finalRes;
+
+                if (adminPrediction !== "") {
+                    finalRes = adminPrediction;
+                    do {
+                        d1 = Math.floor(Math.random() * 6) + 1;
+                        d2 = Math.floor(Math.random() * 6) + 1;
+                        d3 = Math.floor(Math.random() * 6) + 1;
+                        total = d1 + d2 + d3;
+                        var check = (total % 2 !== 0) ? "ODD" : "EVEN";
+                    } while (check !== finalRes);
+                } else {
+                    d1 = Math.floor(Math.random() * 6) + 1;
+                    d2 = Math.floor(Math.random() * 6) + 1;
+                    d3 = Math.floor(Math.random() * 6) + 1;
+                    total = d1 + d2 + d3;
+                    finalRes = (total % 2 !== 0) ? "ODD" : "EVEN";
+                }
+
+                document.getElementById('d1').innerText = d1;
+                document.getElementById('d2').innerText = d2;
+                document.getElementById('d3').innerText = d3;
+                document.getElementById('scoreVal').innerText = total;
+
+                if (playerChoice === finalRes) {
+                    balance += bet;
+                    status.innerText = "WINNER!";
+                    status.style.color = "#2ecc71";
+                } else {
+                    balance -= bet;
+                    status.innerText = "YOU LOST!";
+                    status.style.color = "#e74c3c";
+                }
+
+                document.getElementById('displayBalance').innerText = balance.toLocaleString();
+                updateHistoryPanel(finalRes);
+
+                // Reset Admin cho ván mới
+                if (adminPrediction !== "") {
+                    adminPrediction = Math.random() > 0.5 ? "ODD" : "EVEN";
+                    document.getElementById('hintText').innerText = adminPrediction;
+                }
+            }, 600);
+        }
+
+        /**
+         * Logic Soi Cầu giới hạn 10 ván
+         */
+        function updateHistoryPanel(res) {
+            historyArray.push(res);
+
+            // Nếu vượt quá 10, xóa phần tử đầu tiên (vị trí 0)
+            if (historyArray.length > 10) {
+                historyArray.shift();
+            }
+
+            const container = document.getElementById('historyNodes');
+            container.innerHTML = "";
+
+            historyArray.forEach(item => {
+                const node = document.createElement('div');
+                node.className = `node ${item === 'ODD' ? 'node-odd' : 'node-even'}`;
+                node.innerText = item === 'ODD' ? 'L' : 'C';
+                container.appendChild(node);
+            });
+        }
+    </script>
+</body>
+</html>
