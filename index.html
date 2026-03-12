@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Casino - Limited History</title>
+    <title>Casino Master Pro</title>
     <style>
         :root {
             --gold: #f1c40f;
-            --odd: #e74c3c;
-            --even: #3498db;
-            --bg: #0b0b14;
-            --card: #16213e;
+            --odd-color: #e74c3c;
+            --even-color: #3498db;
+            --bg-color: #0b0b14;
+            --card-bg: #16213e;
         }
 
         body {
-            background-color: var(--bg);
+            background-color: var(--bg-color);
             color: white;
             font-family: 'Segoe UI', Tahoma, sans-serif;
             display: flex;
@@ -25,39 +25,40 @@
         }
 
         .balance-card {
-            background: var(--card);
+            background: var(--card-bg);
             padding: 15px 40px;
             border: 2px solid var(--gold);
             border-radius: 50px;
             font-weight: bold;
             font-size: 1.3rem;
             margin-bottom: 20px;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.3);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.2);
         }
 
-        .main-container {
-            background: var(--card);
+        .game-card {
+            background: var(--card-bg);
             width: 100%;
             max-width: 380px;
             padding: 25px;
             border-radius: 20px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
-        .admin-panel {
+        /* Bảng dự đoán cho mã kemanh */
+        #predictionBoard {
             display: none;
             background: rgba(241, 196, 15, 0.1);
             border: 1px dashed var(--gold);
             color: var(--gold);
-            padding: 12px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin: 10px 0;
             border-radius: 8px;
             font-weight: bold;
             font-size: 14px;
         }
 
-        .dice-box {
+        .dice-row {
             display: flex;
             justify-content: center;
             gap: 15px;
@@ -88,82 +89,74 @@
             border-radius: 8px;
             text-align: center;
             box-sizing: border-box;
-            font-size: 16px;
         }
 
-        .input-row {
+        .code-row {
             display: flex;
-            gap: 8px;
+            gap: 5px;
             margin-bottom: 15px;
         }
 
         .btn-apply {
             background: var(--gold);
-            color: #000;
+            color: black;
             border: none;
-            padding: 0 20px;
+            padding: 0 15px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
         }
 
-        .play-btns {
+        .action-btns {
             display: flex;
             gap: 10px;
         }
 
         .btn {
             flex: 1;
-            padding: 16px;
+            padding: 15px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
             color: white;
             text-transform: uppercase;
-            font-size: 16px;
         }
 
-        .btn-odd { background: var(--odd); }
-        .btn-even { background: var(--even); }
+        .btn-odd { background: var(--odd-color); }
+        .btn-even { background: var(--even-color); }
 
+        /* Soi cầu */
         .history-panel {
             margin-top: 30px;
             width: 100%;
             max-width: 380px;
         }
 
-        .history-list {
+        .history-container {
             display: flex;
             gap: 8px;
-            background: var(--card);
+            background: var(--card-bg);
             padding: 15px;
             border-radius: 12px;
             justify-content: center;
-            min-height: 40px;
         }
 
-        .node {
+        .dot {
             width: 30px;
             height: 30px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-weight: bold;
             font-size: 12px;
-            animation: pop 0.3s ease-out;
+            font-weight: bold;
         }
 
-        @keyframes pop {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
+        .dot-odd { background: var(--odd-color); }
+        .dot-even { background: var(--even-color); }
 
-        .node-odd { background: var(--odd); }
-        .node-even { background: var(--even); }
-
-        #gameStatus {
+        #statusMsg {
             margin-top: 15px;
             font-weight: bold;
             height: 20px;
@@ -173,158 +166,143 @@
 <body>
 
     <div class="balance-card">
-        WALLET: <span id="displayBalance">1,000,000</span> VND
+         ví: <span id="balanceTxt">1,000,000</span> VND
     </div>
 
-    <div class="main-container">
-        <h2 style="color: var(--gold); margin-top: 0;">ELITE CASINO</h2>
-
-        <div id="cheatPanel" class="admin-panel">
-            SIGNAL: <span id="hintText">---</span>
-        </div>
-
-        <div class="dice-box">
+    <div class="game-card">
+        <h2 style="color: var(--gold); margin: 0;">CASINO</h2>
+        
+        <div class="dice-row">
             <div class="dice" id="d1">?</div>
             <div class="dice" id="d2">?</div>
             <div class="dice" id="d3">?</div>
         </div>
-        <p>Score: <span id="scoreVal" style="color: var(--gold);">0</span></p>
 
-        <input type="number" id="betVal" placeholder="Amount to bet">
+        <div id="predictionBoard">DỰ ĐOÁN TIẾP THEO: <span id="nextHint">---</span></div>
+
+        <p>Tổng điểm: <span id="totalPoints" style="color: var(--gold);">0</span></p>
+
+        <input type="number" id="betAmount" placeholder="Nhập số tiền cược">
         
-        <div class="input-row">
-            <input type="text" id="codeInp" placeholder="Enter Code" style="margin:0;">
-            <button class="btn-apply" onclick="handlePromo()">APPLY</button>
+        <div class="code-row">
+            <input type="text" id="codeInput" placeholder="Nhập mã (Code)" style="margin:0;">
+            <button class="btn-apply" onclick="applyCode()">XÁC NHẬN</button>
         </div>
 
-        <div class="play-btns">
-            <button class="btn btn-odd" onclick="processRoll('ODD')">LẺ</button>
-            <button class="btn btn-even" onclick="processRoll('EVEN')">CHẴN</button>
+        <div class="action-btns">
+            <button class="btn btn-odd" onclick="playGame('ODD')">LẺ</button>
+            <button class="btn btn-even" onclick="playGame('EVEN')">CHẴN</button>
         </div>
 
-        <p id="gameStatus"></p>
+        <p id="statusMsg"></p>
     </div>
 
     <div class="history-panel">
-        <p style="font-weight: bold; margin-bottom: 10px;">SOI CẦU (LATEST 10)</p>
-        <div class="history-list" id="historyNodes"></div>
+        <p style="font-weight: bold; margin-bottom: 10px;">SOI CẦU (Tối đa 10 ván)</p>
+        <div class="history-container" id="historyBox"></div>
     </div>
 
     <script>
-        // App State
-        let balance = 1000000;
-        let adminPrediction = "";
-        const historyArray = [];
+        let wallet = 1000000;
+        let cheatedResult = "";
+        const historyList = [];
 
-        /**
-         * Xử lý mã khuyến mãi và mã admin
-         */
-        function handlePromo() {
-            const input = document.getElementById('codeInp').value.trim();
-            const panel = document.getElementById('cheatPanel');
-            const status = document.getElementById('gameStatus');
+        function applyCode() {
+            const input = document.getElementById('codeInput').value.trim();
+            const board = document.getElementById('predictionBoard');
+            const status = document.getElementById('statusMsg');
 
-            // Mã Admin
-            if (input === "kemanh2013") {
-                panel.style.display = "block";
-                if (!adminPrediction) adminPrediction = Math.random() > 0.5 ? "ODD" : "EVEN";
-                document.getElementById('hintText').innerText = adminPrediction;
-                status.innerText = "Admin mode: Active";
-                status.style.color = var(--gold);
+            if (input === "kemanh") {
+                board.style.display = "block";
+                if (!cheatedResult) cheatedResult = Math.random() > 0.5 ? "ODD" : "EVEN";
+                document.getElementById('nextHint').innerText = cheatedResult === "ODD" ? "LẺ" : "CHẴN";
+                status.innerText = "Kích hoạt soi cầu admin!";
+                status.style.color = "#f1c40f";
             } 
-            // Mã Tiền Thưởng 1000 Tỷ
             else if (input === "kietdepzai") {
-                balance += 1000000000000;
-                document.getElementById('displayBalance').innerText = balance.toLocaleString();
-                status.innerText = "Bonus added: 1,000 Billion VND!";
+                wallet += 10000000000;
+                document.getElementById('balanceTxt').innerText = wallet.toLocaleString();
+                status.innerText = "Tặng 10 Tỷ vào ví!";
                 status.style.color = "#2ecc71";
             } else {
-                status.innerText = "Code not found!";
+                status.innerText = "Mã không chính xác!";
                 status.style.color = "#e74c3c";
             }
         }
 
-        /**
-         * Logic Game chính
-         */
-        function processRoll(playerChoice) {
-            const bet = parseInt(document.getElementById('betVal').value);
-            const status = document.getElementById('gameStatus');
+        function playGame(playerChoice) {
+            const bet = parseInt(document.getElementById('betAmount').value);
+            const status = document.getElementById('statusMsg');
 
-            if (isNaN(bet) || bet <= 0 || bet > balance) {
-                status.innerText = "Invalid bet amount!";
+            if (isNaN(bet) || bet <= 0 || bet > wallet) {
+                status.innerText = "Tiền cược không hợp lệ!";
                 status.style.color = "orange";
                 return;
             }
 
-            status.innerText = "Rolling...";
+            status.innerText = "Đang lắc...";
             status.style.color = "white";
 
             setTimeout(() => {
-                let d1, d2, d3, total, finalRes;
+                let d1, d2, d3, total, gameResult;
 
-                if (adminPrediction !== "") {
-                    finalRes = adminPrediction;
+                // Logic nếu có mã kemanh
+                if (cheatedResult !== "") {
+                    gameResult = cheatedResult;
                     do {
                         d1 = Math.floor(Math.random() * 6) + 1;
                         d2 = Math.floor(Math.random() * 6) + 1;
                         d3 = Math.floor(Math.random() * 6) + 1;
                         total = d1 + d2 + d3;
-                        var check = (total % 2 !== 0) ? "ODD" : "EVEN";
-                    } while (check !== finalRes);
+                        var temp = (total % 2 !== 0) ? "ODD" : "EVEN";
+                    } while (temp !== gameResult);
                 } else {
                     d1 = Math.floor(Math.random() * 6) + 1;
                     d2 = Math.floor(Math.random() * 6) + 1;
                     d3 = Math.floor(Math.random() * 6) + 1;
                     total = d1 + d2 + d3;
-                    finalRes = (total % 2 !== 0) ? "ODD" : "EVEN";
+                    gameResult = (total % 2 !== 0) ? "ODD" : "EVEN";
                 }
 
                 document.getElementById('d1').innerText = d1;
                 document.getElementById('d2').innerText = d2;
                 document.getElementById('d3').innerText = d3;
-                document.getElementById('scoreVal').innerText = total;
+                document.getElementById('totalPoints').innerText = total;
 
-                if (playerChoice === finalRes) {
-                    balance += bet;
-                    status.innerText = "WINNER!";
+                if (playerChoice === gameResult) {
+                    wallet += bet;
+                    status.innerText = "BẠN ĐÃ THẮNG!";
                     status.style.color = "#2ecc71";
                 } else {
-                    balance -= bet;
-                    status.innerText = "YOU LOST!";
+                    wallet -= bet;
+                    status.innerText = "BẠN ĐÃ THUA!";
                     status.style.color = "#e74c3c";
                 }
 
-                document.getElementById('displayBalance').innerText = balance.toLocaleString();
-                updateHistoryPanel(finalRes);
+                document.getElementById('balanceTxt').innerText = wallet.toLocaleString();
+                updateHistory(gameResult);
 
-                // Reset Admin cho ván mới
-                if (adminPrediction !== "") {
-                    adminPrediction = Math.random() > 0.5 ? "ODD" : "EVEN";
-                    document.getElementById('hintText').innerText = adminPrediction;
+                // Tạo kết quả mới cho ván sau nếu đang dùng mã kemanh
+                if (cheatedResult !== "") {
+                    cheatedResult = Math.random() > 0.5 ? "ODD" : "EVEN";
+                    document.getElementById('nextHint').innerText = cheatedResult === "ODD" ? "LẺ" : "CHẴN";
                 }
             }, 600);
         }
 
-        /**
-         * Logic Soi Cầu giới hạn 10 ván
-         */
-        function updateHistoryPanel(res) {
-            historyArray.push(res);
-
-            // Nếu vượt quá 10, xóa phần tử đầu tiên (vị trí 0)
-            if (historyArray.length > 10) {
-                historyArray.shift();
+        function updateHistory(res) {
+            historyList.push(res);
+            if (historyList.length > 10) {
+                historyList.shift();
             }
 
-            const container = document.getElementById('historyNodes');
-            container.innerHTML = "";
-
-            historyArray.forEach(item => {
-                const node = document.createElement('div');
-                node.className = `node ${item === 'ODD' ? 'node-odd' : 'node-even'}`;
-                node.innerText = item === 'ODD' ? 'L' : 'C';
-                container.appendChild(node);
+            const box = document.getElementById('historyBox');
+            box.innerHTML = "";
+            historyList.forEach(item => {
+                const dot = document.createElement('div');
+                dot.className = `dot ${item === 'ODD' ? 'dot-odd' : 'dot-even'}`;
+                dot.innerText = item === 'ODD' ? 'L' : 'C';
+                box.appendChild(dot);
             });
         }
     </script>
